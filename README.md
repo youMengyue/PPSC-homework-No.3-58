@@ -7,26 +7,19 @@
 - **Implementation**: Using C++ Parallel STL (std::reduce + std::execution::par)
 - **Data Type**: long long int (64-bit integers)
 
-## Build Instructions
+## Universal Build Instructions
 
-### Using Makefile (Recommended)
+### Method 1: Using CMake (Recommended - Cross Platform)
 ```bash
-# Build parallel version (default)
-make parallel
-./zhanhong_58_parallel
+# Create build directory
+mkdir build
+cd build
 
-# Build linear version
-make linear  
-./zhanhong_58_linear
+# Configure project
+cmake ..
 
-# Build both versions for performance comparison
-make both
-./zhanhong_58_both
+# Build project
+cmake --build .
 
-# Run specific versions
-make run_parallel    # Build and run parallel version
-make run_linear      # Build and run linear version
-make run_both        # Build and run both versions
-
-# Clean build files
-make clean
+# Run the executable
+./zhanhong_58_main
