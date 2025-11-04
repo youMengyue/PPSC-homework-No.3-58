@@ -1,25 +1,67 @@
-# zhanhong Student ID 58 - Parallel STL Array Sum Assignment
+# Задание по курсу параллельного программирования
 
-## Assignment Information
-- **Name**: zhanhong
-- **Student ID**: 58
-- **Task**: Calculate sum of long long int array elements
-- **Implementation**: Using C++ Parallel STL (std::reduce + std::execution::par)
-- **Data Type**: long long int (64-bit integers)
+### Информация о студенте
+*   **Студент:** 58
+*   **Задание:** 3. Найти сумму массива.
+*   **Метод:** 5. Реализовать при помощи parallel stl.
+*   **Тип данных:** 3. long long int (64-bit).
 
-## Universal Build Instructions
+### Описание программы
 
-### Method 1: Using CMake (Recommended - Cross Platform)
+Программа вычисляет сумму элементов очень большого массива (`500 миллионов` чисел типа `long long int`). Она может работать в двух режимах:
+1.  **Параллельный:** Использует `std::reduce` из C++17 Parallel STL для распараллеливания вычислений на все доступные ядра процессора.
+2.  **Последовательный:** Использует классический `std::accumulate` для вычислений в одном потоке.
+
+Режим работы выбирается на этапе сборки проекта. Программа также измеряет и выводит время, затраченное на вычисление суммы, что позволяет наглядно сравнить производительность двух подходов.
+
+### Зависимости для сборки
+*   **C++17 компилятор:** GCC (версии 9+), Clang (версии 7+), или MSVC (Visual Studio 2017+).
+*   **CMake:** Версии 3.12 или выше.
+*   **Intel TBB (Threading Building Blocks):** **Для параллельной сборки на Linux/macOS**. Это стандартная библиотека, которую используют GCC и Clang для реализации Parallel STL.
+    *   **Установка в Ubuntu/Debian:** `sudo apt install libtbb-dev`
+    *   **Установка в macOS (через Homebrew):** `brew install tbb`
+    *   **В Windows (Visual Studio):** Ничего дополнительно устанавливать не нужно, поддержка встроена в компилятор.
+
+### Инструкция по сборке и запуску
+
+Проект собирается с помощью CMake, что обеспечивает кроссплатформенность.
+
+**1. Распакуйте архив и перейдите в папку с проектом.**
+
+**2. Создайте отдельную папку для сборки.** Это хорошая практика, чтобы не засорять папку с исходным кодом.
 ```bash
-# Create build directory
 mkdir build
 cd build
+```
 
-# Configure project
-cmake ..
+**3. Сконфигурируйте проект с помощью CMake.**
 
-# Build project
+**Вариант А: Сборка параллельной версии (по умолчанию)**
+```bash
+# Ключ -DUSE_PARALLEL=ON включает параллельный режим.
+cmake .. -DUSE_PARALLEL=ON
+```
+
+**Вариант Б: Сборка последовательной (линейной) версии для сравнения**
+```bash
+# Ключ -DUSE_PARALLEL=OFF отключает параллельный режим.
+cmake .. -DUSE_PARALLEL=OFF
+```
+
+**4. Скомпилируйте программу.**
+```bash
+# Эта команда запустит систему сборки (make в Linux, MSBuild в Windows и т.д.)
 cmake --build .
+```
 
-# Run the executable
-./zhanhong_58_main
+**5. Запустите исполняемый файл.**
+*   В Linux / macOS:
+    ```bash
+    ./sum_calculator
+    ```
+*   В Windows:
+    ```bash
+    .\Debug\sum_calculator.exe
+    ```
+
+После запуска программа выведет информацию о задании, время генерации данных, режим работы, время вычисления суммы и итоговый результат.

@@ -1,42 +1,45 @@
-cmake_minimum_required(VERSION 3.15)
-project(zhanhong_58_assignment)
+# Указываем минимальную требуемую версию CMake
+cmake_minimum_required(VERSION 3.12)
 
-# Set C++ standard
+# Задаем имя проекта
+project(ParallelSumCalculator LANGUAGES CXX)
+
+# Устанавливаем стандарт C++17, так как Parallel STL требует его
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Detect available parallel STL implementations
-find_package(TBB QUIET)
+# Добавляем опцию для включения/выключения параллельного режима
+# ON - параллельный, OFF - последовательный
+option(USE_PARALLEL "Enable Parallel STL execution" ON)
 
-# Add executable
-add_executable(zhanhong_58_main src/main.cpp)
+# Определяем имя исполняемого файла
+set(EXECUTABLE_NAME sum_calculator)
 
-# Set compiler options based on platform
-if(MSVC)
-    target_compile_options(zhanhong_58_main PRIVATE /O2)
-else()
-    target_compile_options(zhanhong_58_main PRIVATE -O3)
-    if(NOT APPLE)
-        target_compile_options(zhanhong_58_main PRIVATE -march=native)
+# Добавляем исполняемый файл, который будет собран из main.cpp
+add_executable(${EXECUTABLE_NAME} main.cpp)
+
+# Логика для управления режимами
+if(USE_PARALLEL)
+    # Если опция USE_PARALLEL включена
+    message(STATUS "Parallel mode is ON. Compiling with Parallel STL support.")
+    
+    # Передаем компилятору директиву -DUSE_PARALLEL
+    target_compile_definitions(${EXECUTABLE_NAME} PRIVATE USE_PARALLEL)
+
+    # Для параллельных алгоритмов в GCC и Clang часто требуется библиотека
+    # Intel TBB (Threading Building Blocks). CMake найдет ее.
+    # MSVC (компилятор Visual Studio) имеет встроенную поддержку и не требует TBB.
+    find_package(TBB)
+    if(TBB_FOUND)
+        message(STATUS "Intel TBB library found. Linking...")
+        target_link_libraries(${EXECUTABLE_NAME} PRIVATE TBB::tbb)
+    else()
+        # Если TBB не найдена, компиляция может пройти успешно (например, в MSVC),
+        # но на Linux/macOS, скорее всего, завершится ошибкой.
+        message(WARNING "Intel TBB not found. Parallel STL might not be available on this compiler (GCC/Clang).")
     endif()
-endif()
-
-# Add configurations for different build types
-option(BUILD_PARALLEL "Build with parallel STL" ON)
-option(BUILD_LINEAR "Build with linear version" ON)
-
-if(BUILD_PARALLEL)
-    target_compile_definitions(zhanhong_58_main PRIVATE PARALLEL_VERSION)
-    message(STATUS "Building with parallel STL support")
-endif()
-
-if(BUILD_LINEAR)
-    target_compile_definitions(zhanhong_58_main PRIVATE LINEAR_VERSION)
-    message(STATUS "Building with linear version")
-endif()
-
-# Add TBB if found for better parallel performance
-if(TBB_FOUND)
-    target_link_libraries(zhanhong_58_main PRIVATE TBB::tbb)
-    message(STATUS "TBB found - using for parallel execution")
+else()
+    # Если опция USE_PARALLEL выключена
+    message(STATUS "Parallel mode is OFF. Compiling in sequential mode.")
 endif()
